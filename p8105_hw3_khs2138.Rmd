@@ -8,12 +8,34 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(message = FALSE)
-```
+#knitr::opts_chunk$set(message = FALSE)
 
-```{r libraries}
+knitr::opts_chunk$set(message = FALSE,
+	echo = TRUE,
+	warning = FALSE,
+	fig.width = 8, 
+  fig.height = 6,
+  out.width = "90%"
+)
+
 library(p8105.datasets)
 library(tidyverse)
+library(ggridges)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+
+```{r libraries}
+
 ```
 
 
@@ -24,7 +46,7 @@ library(tidyverse)
 
 data("instacart")
 insta_df = instacart 
-skimr::skim(insta_df)
+#skimr::skim(insta_df)
 #length(unique(insta_df$aisle_id)) # 134 
 ```
 
@@ -37,24 +59,27 @@ The dataset has `r nrow(insta_df)` rows and `r ncol(insta_df)` columns. Each row
 **How many aisles are there, and which aisles are the most items ordered from?** There are `r length(unique(insta_df$aisle_id))` aisles, and the most items are ordered from fresh vegetables and fresh fruits
 
 ```{r aisles_data}
-insta_df |>
+ailse_ct = 
+  insta_df |>
   group_by(aisle) |>
   summarize(n_obs = n()) |>
   arrange(desc(n_obs))
 ```
 
 
-
-
-Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+**Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.** 
 
 ```{r aisles_plot}
-insta_df |>
-  group_by(aisle) |>
-  summarize(n_obs = n()) |>
-  arrange(desc(n_obs)) |>
-  filter(n_obs > 23634) |>
-  select (aisle)
+ailse_ct |>
+  filter(n_obs > 10000) |> 
+  mutate(aisle = fct_reorder(aisle, n_obs)) |> 
+  ggplot(aes(x = aisle, y = n_obs)) + 
+  geom_point() + 
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
+
+
 ```
 
 
