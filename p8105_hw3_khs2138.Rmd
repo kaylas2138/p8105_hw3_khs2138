@@ -58,7 +58,7 @@ The dataset has `r nrow(insta_df)` rows and `r ncol(insta_df)` columns. Each row
 
 **How many aisles are there, and which aisles are the most items ordered from?** There are `r length(unique(insta_df$aisle_id))` aisles, and the most items are ordered from fresh vegetables and fresh fruits
 
-```{r aisles_data}
+```{r aisles_count}
 ailse_ct = 
   insta_df |>
   group_by(aisle) |>
@@ -76,14 +76,24 @@ ailse_ct |>
   ggplot(aes(x = aisle, y = n_obs)) + 
   geom_point() + 
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
-
-
-
-
 ```
 
 
-Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+**Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.**
+```{r aisle_popular}
+insta_df |>
+  filter(aisle %in% c("baking ingredients","dog food care","packaged vegetables fruits")) |>
+  group_by(aisle, product_name) |>
+  summarize(n_obs = n()) |>
+  filter(min_rank(desc(n_obs)) < 4) |>
+  arrange(desc(n_obs)) |>
+  knitr::kable()
+
+#  mutate(rank = min_rank(desc(n))) |>
+ # filter(rank < 4)
+
+```
+
 Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
 
 
