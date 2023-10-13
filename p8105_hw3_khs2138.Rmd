@@ -34,10 +34,6 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 
-```{r libraries}
-
-```
-
 
 # Problem 1
 
@@ -88,12 +84,45 @@ insta_df |>
   filter(min_rank(desc(n_obs)) < 4) |>
   arrange(desc(n_obs)) |>
   knitr::kable()
+```
 
-#  mutate(rank = min_rank(desc(n))) |>
- # filter(rank < 4)
+**Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).**
+```{r mean_hour}
+insta_df |>
+  filter(product_name %in% c("Pink Lady Apples","Coffee Ice Cream")) |>
+  group_by(product_name, order_dow) |>
+  summarize(mean_hour = mean(order_hour_of_day)) |> 
+  pivot_wider(names_from = order_dow,
+              values_from = mean_hour) |>
+  knitr::kable()
 
 ```
 
-Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
+
+# Problem 2
+
+First, do some data cleaning:
+
+format the data to use appropriate variable names;
+focus on the “Overall Health” topic
+include only responses from “Excellent” to “Poor”
+organize responses as a factor taking levels ordered from “Poor” to “Excellent”
+
+```{r load_brfss}
+library(p8105.datasets)
+data("brfss_smart2010")
+brfss_data = 
+  brfss_smart2010 |>
+  janitor::clean_names() |>
+  rename(location_abbr = locationabbr,  location_desc = locationdesc, 
+         resp_id = respid) |>
+  filter(topic == "Overall Health" & response %in% c("Excellent", "Poor")) |>
+  mutate(response = factor(response, levels = c("Poor", "Excellent"), ordered = TRUE))
+skimr::skim(brfss_data)
+
+
+```
+
+
 
 
