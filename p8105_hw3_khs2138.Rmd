@@ -216,7 +216,10 @@ accel_df =
 ### Merge NHANES 
 ```{r merge_nhanes}
 nhanes_df = 
-  left_join(demo_df, accel_df, by = "seqn")
+  left_join(demo_df, accel_df, by = "seqn") |> 
+   pivot_longer(min1:min1440, 
+               names_to = "min",
+               values_to = "min_value")
 head(nhanes_df)
 ```
 
@@ -226,11 +229,13 @@ head(nhanes_df)
 
 ```{r education_table}
 nhanes_df |>
+  distinct(seqn, age, sex, education) |>
   group_by(education, sex) |>
   summarize(n_indiv = n()) |>
   knitr::kable()
 
 nhanes_df |>
+  distinct(seqn, age, sex, education) |>
   ggplot(aes(x = age, fill = education)) +
   geom_density(alpha = 0.4, adjust = 0.5) +
   facet_grid(.~ sex)
@@ -240,16 +245,16 @@ nhanes_df |>
 
 There is a roughly even split of Male versus Female for education levels of less than or more than high school. For high school equivalent, there are more Males (`r (35/(35 + 23)*100) |> round(2)`%) than Females (`r (23/(35 + 23)*100) |> round(2)`%). For both Males and Females, but for Females in particular, participants with more than high school education are moslty young (< 40). For Females in particular, the older participants (>60) seem to have more concentration of less than or equivalent to high school education. The distribution of Males with less than high swchool education seem to be largely beteen ages 40-50 or greater than 60. 
 
-## Accelemator Analyses
+## Total Activity Analyses
 
 **Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate across minutes to create a total activity variable for each participant. Plot these total activities (y-axis) against age (x-axis); your plot should compare men to women and have separate panels for each education level. Include a trend line or a smooth to illustrate differences. Comment on your plot.**
 
 ```{r}
 total_activity = 
   nhanes_df |>
-  pivot_longer(min1:min1440, 
-               names_to = "min",
-               values_to = "min_value") |>
+  #pivot_longer(min1:min1440, 
+   #            names_to = "min",
+    #           values_to = "min_value") |>
   group_by(seqn, age, sex, education) |>
   summarize(n_obs = n(),
             total_activity = sum(min_value))
@@ -264,8 +269,21 @@ total_activity |>
 For less than high school level education, total acitvity on average is higher for Females below the age of 40, and higher for Males above the age of 40. For high school equivalent or more education level, total activity is on average higher for women than men for all ages (with the exception of a similar trend in activity levels for Males and Females around the age of 20 for high school equivalent). For all education levels, activity level decreases with age, but the decrease with age is less severe with increased education level (that is, for less than high school education, the dip in activity with increased age is quite drastic, and less so for high school or more).
 
 
-## Daily Accelerometer
-Accelerometer data allows the inspection activity over the course of the day. Make a three-panel plot that shows the 24-hour activity time courses for each education level and use color to indicate sex. Describe in words any patterns or conclusions you can make based on this graph; including smooth trends may help identify differences.
+## Daily Activity Analyses
+**Accelerometer data allows the inspection activity over the course of the day. Make a three-panel plot that shows the 24-hour activity time courses for each education level and use color to indicate sex. Describe in words any patterns or conclusions you can make based on this graph; including smooth trends may help identify differences.**
 
+First, extract the minute from `min` to be a numerical value to plot along x-axis. 
+
+```{r}
+daily_activity = 
+  nhanes_df |>
+  mutate(min_numeric = substr(nhanes_df$min, 4, nchar(nhanes_df$min))) |>
+  mutate(min_numeric = as.numeric(min_numeric))
+
+daily_activity |>
+  ggplot(aes(x = min_numeric, y = min_value, color = sex)) + 
+  geom_point(alpha = 0.3) + 
+  geom_smooth(se = FALSE)
+```
 
 
