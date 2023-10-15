@@ -193,7 +193,9 @@ ny_dataset |>
 
 # Problem 3
 
-Load, tidy, merge, and otherwise organize the data sets. Your final dataset should include all originally observed variables; exclude participants less than 21 years of age, and those with missing demographic data; and encode data with reasonable variable classes (i.e. not numeric, and using factors with the ordering of tables and plots in mind).
+## Load and Tidy NHANES Datasets
+
+**Load, tidy, merge, and otherwise organize the data sets. Your final dataset should include all originally observed variables; exclude participants less than 21 years of age, and those with missing demographic data; and encode data with reasonable variable classes (i.e. not numeric, and using factors with the ordering of tables and plots in mind).**
 
 ```{r load_nhanes_data}
 demo_df = 
@@ -202,12 +204,49 @@ demo_df =
   mutate(sex = recode(sex, "2" = "Female", "1" = "Male")) |>
   mutate(sex = factor(sex, levels = c("Male", "Female"), ordered = TRUE)) |>
   mutate(education = recode(education, "1" = "hs_less", "2" = "hs_equiv", "3" = "hs_more")) |>
-  mutate(education = factor(education, levels = c("hs_less", "hs_equiv","hs_more"), ordered = TRUE))
+  mutate(education = factor(education, levels = c("hs_less", "hs_equiv","hs_more"), ordered = TRUE)) |>
+  filter(age >= 21) |> # 250 -> 231)
+  filter(!is.na(sex) & !is.na(age) & !is.na(education) & !is.na(bmi)) # 250 -> 228
+#  filter(complete.cases(.))
 
 accel_df =
   read_csv('./data/nhanes_accel.csv') |>
   janitor::clean_names()
+```
+
+### Merge NHANES 
+```{r merge_nhanes}
+nhanes_df = 
+  left_join(demo_df, accel_df, by = "seqn")
+head(nhanes_df)
+```
+
+
+## Men and Women, Education and Age
+**Produce a reader-friendly table for the number of men and women in each education category, and create a visualization of the age distributions for men and women in each education category. Comment on these items.**
+
+```{r education_table}
+nhanes_df |>
+  group_by(education, sex) |>
+  summarize(n_indiv = n()) |>
+  knitr::kable()
+
+nhanes_df |>
+  ggplot(aes(x = age, fill = education)) +
+  geom_density(alpha = 0.4, adjust = 0.5) +
+  facet_grid(.~ sex)
 
 ```
+
+
+There is a roughly even split of Male versus Female for education levels of less than or more than high school. For high school equivalent, there are more Males (`r (35/(35 + 23)*100) |> round(2)`%) than Females (`r (23/(35 + 23)*100) |> round(2)`%). For both Males and Females, but for Females in particular, participants with more than high school education are moslty young (< 40). For Females in particular, the older participants (>60) seem to have more concentration of less than or equivalent to high school education. The distribution of Males with less than high swchool education seem to be largely beteen ages 40-50 or greater than 60. 
+
+## Accelemator Analyses
+
+Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate across minutes to create a total activity variable for each participant. Plot these total activities (y-axis) against age (x-axis); your plot should compare men to women and have separate panels for each education level. Include a trend line or a smooth to illustrate differences. Comment on your plot.
+
+## Daily Accelerometer
+Accelerometer data allows the inspection activity over the course of the day. Make a three-panel plot that shows the 24-hour activity time courses for each education level and use color to indicate sex. Describe in words any patterns or conclusions you can make based on this graph; including smooth trends may help identify differences.
+
 
 
