@@ -190,7 +190,8 @@ ny_dataset =
 
 ny_dataset |>
   ggplot(aes(x = data_value, fill = year)) + 
-  geom_histogram(position = "dodge", binwidth = 0.5) 
+  geom_histogram(position = "dodge", binwidth = 0.5) + 
+  facet_grid(.~year)
 
 ```
 
