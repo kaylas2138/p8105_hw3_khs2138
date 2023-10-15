@@ -261,6 +261,8 @@ total_activity |>
   facet_grid(. ~ education)
 ```
 
+For less than high school level education, total acitvity on average is higher for Females below the age of 40, and higher for Males above the age of 40. For high school equivalent or more education level, total activity is on average higher for women than men for all ages (with the exception of a similar trend in activity levels for Males and Females around the age of 20 for high school equivalent). For all education levels, activity level decreases with age, but the decrease with age is less severe with increased education level (that is, for less than high school education, the dip in activity with increased age is quite drastic, and less so for high school or more).
+
 
 ## Daily Accelerometer
 Accelerometer data allows the inspection activity over the course of the day. Make a three-panel plot that shows the 24-hour activity time courses for each education level and use color to indicate sex. Describe in words any patterns or conclusions you can make based on this graph; including smooth trends may help identify differences.
