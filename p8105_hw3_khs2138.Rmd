@@ -163,7 +163,7 @@ exc_dataset =
   group_by(year, state) |>
   summarize(n_obs = n(), 
             data_average = mean(data_value))
-head(exc_dataset)
+#head(exc_dataset)
 
 ```
 
@@ -220,7 +220,7 @@ nhanes_df =
    pivot_longer(min1:min1440, 
                names_to = "min",
                values_to = "min_value")
-head(nhanes_df)
+#head(nhanes_df)
 ```
 
 
@@ -249,16 +249,14 @@ There is a roughly even split of Male versus Female for education levels of less
 
 **Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate across minutes to create a total activity variable for each participant. Plot these total activities (y-axis) against age (x-axis); your plot should compare men to women and have separate panels for each education level. Include a trend line or a smooth to illustrate differences. Comment on your plot.**
 
-```{r}
+```{r total_activity}
 total_activity = 
   nhanes_df |>
-  #pivot_longer(min1:min1440, 
-   #            names_to = "min",
-    #           values_to = "min_value") |>
   group_by(seqn, age, sex, education) |>
   summarize(n_obs = n(),
             total_activity = sum(min_value))
 
+# Plot
 total_activity |>
   ggplot(aes(x = age, y = total_activity, color = sex)) + 
   geom_point() + 
@@ -274,16 +272,18 @@ For less than high school level education, total acitvity on average is higher f
 
 First, extract the minute from `min` to be a numerical value to plot along x-axis. 
 
-```{r}
+```{r daily_activity}
 daily_activity = 
   nhanes_df |>
   mutate(min_numeric = substr(nhanes_df$min, 4, nchar(nhanes_df$min))) |>
   mutate(min_numeric = as.numeric(min_numeric))
 
+# Plot
 daily_activity |>
   ggplot(aes(x = min_numeric, y = min_value, color = sex)) + 
-  geom_point(alpha = 0.3) + 
-  geom_smooth(se = FALSE)
+  geom_point(alpha = 0.05) + 
+  geom_smooth(se = FALSE) + 
+  facet_grid(. ~ education)
 ```
 
-
+Most notable is that across education levels, the lowest level of activity is in the first 250 minutes (`r (250/60) |> round(2)` hours) of the 24-hour period. The activity level remains steady throughout the day, dipping again in the last 100 or so minutes of the day (`r (100/60) |> round(2)` hours). Male and Females show similar levels of activity, except for among the highest educationg roup (high school or more) where Females have a higher level of activity than their Male coutnerparts. 
