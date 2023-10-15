@@ -191,4 +191,23 @@ ny_dataset |>
 
 ```
 
+# Problem 3
+
+Load, tidy, merge, and otherwise organize the data sets. Your final dataset should include all originally observed variables; exclude participants less than 21 years of age, and those with missing demographic data; and encode data with reasonable variable classes (i.e. not numeric, and using factors with the ordering of tables and plots in mind).
+
+```{r load_nhanes_data}
+demo_df = 
+  read_csv('./data/nhanes_covar.csv', skip = 4) |>
+  janitor::clean_names() |>
+  mutate(sex = recode(sex, "2" = "Female", "1" = "Male")) |>
+  mutate(sex = factor(sex, levels = c("Male", "Female"), ordered = TRUE)) |>
+  mutate(education = recode(education, "1" = "hs_less", "2" = "hs_equiv", "3" = "hs_more")) |>
+  mutate(education = factor(education, levels = c("hs_less", "hs_equiv","hs_more"), ordered = TRUE))
+
+accel_df =
+  read_csv('./data/nhanes_accel.csv') |>
+  janitor::clean_names()
+
+```
+
 
