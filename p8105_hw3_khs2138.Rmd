@@ -253,6 +253,12 @@ total_activity =
   group_by(seqn, age, sex, education) |>
   summarize(n_obs = n(),
             total_activity = sum(min_value))
+
+total_activity |>
+  ggplot(aes(x = age, y = total_activity, color = sex)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE) + 
+  facet_grid(. ~ education)
 ```
 
 
